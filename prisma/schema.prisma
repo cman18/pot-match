@@ -1,0 +1,45 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Election {
+  id          String   @id
+  name        String
+  date        DateTime
+  contests    Contest[]
+}
+
+model Contest {
+  id            String   @id
+  electionId    String
+  office        String?
+  level         String?
+  jurisdiction  String?
+  candidates    CandidateOnContest[]
+  Election      Election @relation(fields: [electionId], references: [id])
+}
+
+model Candidate {
+  id            String  @id
+  name          String
+  party         String?
+  fecId         String?
+  congressId    String?
+  incumbency    String?
+  stanceVectors Json?
+  finance       Json?
+  contests      CandidateOnContest[]
+}
+
+model CandidateOnContest {
+  contestId   String
+  candidateId String
+  Contest     Contest   @relation(fields: [contestId], references: [id])
+  Candidate   Candidate @relation(fields: [candidateId], references: [id])
+  @@id([contestId, candidateId])
+}
